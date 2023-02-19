@@ -6,6 +6,8 @@ const Answer = require('./Answer');
 const useRegistrationHandler = require('./handlers/userHandlers/useRegistrationHandler');
 const useLoginHandler = require('./handlers/userHandlers/useLoginHandler');
 const useLogoutHandler = require('./handlers/userHandlers/useLogoutHandler');
+const useNotFoundHandler = require('./handlers/userHandlers/useNotFoundPage');
+
 
 function Router({ userManager }) {
     const answer = new Answer;
@@ -16,7 +18,7 @@ function Router({ userManager }) {
     router.get('/api/login/:login/:password', useLoginHandler(answer, userManager));
     router.get('/api/logout/:token', useLogoutHandler(answer, userManager));
 
-    //router.all('/*', notFound);
+    router.all('/*', useNotFoundHandler);
     return router;
 }
 
