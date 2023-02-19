@@ -4,7 +4,10 @@ const crypto = require('crypto');
 class UserManager {
     constructor() {
         this.id = 0;
-        this.users = {};
+        this.users = {
+            'login': 'dasd',
+            'password': 'dasdas'
+        };
     }
 
     genId() {
@@ -12,7 +15,7 @@ class UserManager {
     }
 
     registration(name, login, password) {
-        if(this.checkLogin(login) && name && password) {
+        if (this.checkLogin(login) && name && password) {
             this.users[`${this.id}`] = new User(this.id, name, login, password);
             this.genId();
             return true;
@@ -21,11 +24,11 @@ class UserManager {
     }
 
     login(login, password) {
-        if( login && password) {
+        if (login && password) {
             const users = Object.values(this.users)
-            if(users[0]){
+            if (users[0]) {
                 const user = (users.filter(user => user.login === login && user.password === password))[0];
-                if(user) {
+                if (user) {
                     const token = crypto.randomBytes(32).toString('hex');
                     user.token = token;
                     return token;
@@ -34,13 +37,13 @@ class UserManager {
         }
         return false;
     }
-    
+
     logout(token) {
-        if(token) {
+        if (token) {
             const users = Object.values(this.users);
-            if(users[0]) {
+            if (users[0]) {
                 const user = (users.filter(user => user.token === token))[0];
-                if(user) {
+                if (user) {
                     user.token = null;
                     return true;
                 }
@@ -61,7 +64,7 @@ class UserManager {
 
     checkLogin(login) {
         const users = Object.values(this.users);
-        if(users[0]) {
+        if (users[0]) {
             return users.every(user => user.login !== login);
         }
         return true;
