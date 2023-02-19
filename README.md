@@ -10,7 +10,7 @@ useLoginHandler  {
     ) => {
         response: {result: string, data: boolean} = {
             result: 'ok',
-            data: boolean
+            data: { token: any }
         }
     }
 }

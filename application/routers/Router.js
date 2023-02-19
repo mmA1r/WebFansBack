@@ -10,10 +10,10 @@ const useLogoutHandler = require('./handlers/userHandlers/useLogoutHandler');
 function Router({ userManager }) {
     const answer = new Answer;
 
-    router.get('/api/check', () => console.log('checked'));
+    router.get('/api/check', (req, res) => res.send('checked'));
 
     router.get('/api/registration/:name/:login/:password', useRegistrationHandler(answer, userManager));
-    router.get('/api/login/:login/:password/:token', useLoginHandler(answer, userManager));
+    router.get('/api/login/:login/:password', useLoginHandler(answer, userManager));
     router.get('/api/logout/:token', useLogoutHandler(answer, userManager));
 
     //router.all('/*', notFound);

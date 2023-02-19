@@ -1,5 +1,5 @@
 const User = require('./User');
-const user = new User;
+const crypto = require('crypto');
 
 class UserManager {
     constructor() {
@@ -20,14 +20,15 @@ class UserManager {
         return false;
     }
 
-    login(login, password, token) {
-        if(token && login && password) {
+    login(login, password) {
+        if( login && password) {
             const users = Object.values(this.users)
             if(users[0]){
                 const user = (users.filter(user => user.login === login && user.password === password))[0];
                 if(user) {
+                    const token = crypto.randomBytes(32).toString('hex');
                     user.token = token;
-                    return true;
+                    return token;
                 }
             }
         }
