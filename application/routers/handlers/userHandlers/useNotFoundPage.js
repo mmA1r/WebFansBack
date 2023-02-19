@@ -1,6 +1,6 @@
-function useNotFoundHandler(answer) {
+function useNotFoundHandler(answer){
     return (req, res) => {
-        const data = 'Страница не найдена';
+        const data = 'Page not found';
         res.send(answer.good(data));
     }
 }
