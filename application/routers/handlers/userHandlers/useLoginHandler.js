@@ -3,8 +3,10 @@ function useLoginHandler(answer, userManager) {
         const { login, password } = req.params;
         
         const data = userManager.login(login, password);
-
-        res.send(answer.good({ token: data }));
+        if(data) {
+            return res.send(answer.good({ data }));
+        }
+        return res.send(answer.bad());
     }
 }
 

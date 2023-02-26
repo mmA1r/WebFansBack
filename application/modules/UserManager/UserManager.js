@@ -21,14 +21,14 @@ class UserManager {
     }
 
     login(login, password) {
-        if( login && password) {
+        if(login && password) {
             const users = Object.values(this.users)
             if(users[0]){
                 const user = (users.filter(user => user.login === login && user.password === password))[0];
                 if(user) {
                     const token = crypto.randomBytes(32).toString('hex');
                     user.token = token;
-                    return token;
+                    return user;
                 }
             }
         }
@@ -49,9 +49,13 @@ class UserManager {
         return false;
     }
 
-    getUser(id) {
-        const user = this.users[`${id}`];
-        return user ? user.getUser(id) : false;
+    getUser(token) {
+        const users = Object.values(this.users);
+        if(users[0]) {
+            const user = (users.filter(user => user.token === token))[0];
+            return user;
+        }
+        return null;
     }
 
     //checkUser(login, token) {
@@ -68,4 +72,4 @@ class UserManager {
     }
 }
 
-module.exports = UserManager;
+module.exports = new UserManager;

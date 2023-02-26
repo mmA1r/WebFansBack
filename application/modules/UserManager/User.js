@@ -7,8 +7,8 @@ class User {
         this.token = token;
     }
 
-    getUser(id) {
-        if(this.id === id) {
+    getUser(token) {
+        if(this.token === token) {
             return ({
                 id: this.id,
                 login: this.login,
@@ -17,6 +17,7 @@ class User {
                 token: this.token
             });
         }
+        return null;
     }
 }
 

@@ -3,8 +3,10 @@ function useRegistrationHandler(answer, userManager) {
         const { name, login, password } = req.params;
 
         const data = userManager.registration(name, login, password);
-
-        res.send(answer.good({ data }));
+        if(data) {
+            return res.send(answer.good({ data }));
+        }
+        return res.send(answer.bad());
     }
 }
 

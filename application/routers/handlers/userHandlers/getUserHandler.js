@@ -1,8 +1,8 @@
-function useLogoutHandler(answer, userManager) {
+function getUserHandler(answer, userManager) {
     return (req, res) => {
         const { token } = req.params;
         
-        const data = userManager.logout(token);
+        const data = userManager.getUser(token);
         if(data) {
             return res.send(answer.good({ data }));
         }
@@ -10,4 +10,4 @@ function useLogoutHandler(answer, userManager) {
     }
 }
 
-module.exports = useLogoutHandler;
+module.exports = getUserHandler;
