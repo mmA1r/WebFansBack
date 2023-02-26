@@ -25,6 +25,18 @@ class MessageManager {
         return null;
     }
 
+    sendPrivateMessage(message, senderId, messageTarget) {
+        const sender = UserManager.users[senderId]
+        if(message && senderId && messageTarget && sender) {
+            this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name, messageTarget);
+            this.genId();
+            const hash = crypto.randomBytes(32).toString('hex');
+            this.hash = hash;
+            return this.hash
+        }
+        return null;
+    }
+
     getMessages(hash) {
         const dbHash = this.hash;
         if(hash !== dbHash) {
