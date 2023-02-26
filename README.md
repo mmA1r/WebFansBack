@@ -8,9 +8,9 @@ useLoginHandler  {
         login: string,
         password: string,
     ) => {
-        response: {result: string, data: boolean} = {
+        response: {result: string, data: { token: string }} = {
             result: 'ok',
-            data: { token: any }
+            data: { data: obj }
         }
     }
 }
