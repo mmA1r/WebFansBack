@@ -6,7 +6,6 @@ function sendGeneralMessageHandler(answer, messageManager) {
         if(data) {
             return res.send(answer.good({ data }));
         }
-        next();
         return res.send(answer.bad());
     }
 }

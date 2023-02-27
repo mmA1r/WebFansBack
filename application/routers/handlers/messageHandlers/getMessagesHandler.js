@@ -4,7 +4,7 @@ function getMessagesHandler(answer, messageManager) {
         
         const data = messageManager.getMessages(chatHash);
         if(data) {
-            res.send(answer.good({ data }));
+            return res.send(answer.good({ data }));
         }
         return res.send(answer.bad());
     }

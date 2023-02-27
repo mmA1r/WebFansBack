@@ -30,9 +30,9 @@ class MessageManager {
         if(message && senderId && messageTarget && sender) {
             this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name, messageTarget);
             this.genId();
-            const hash = crypto.randomBytes(32).toString('hex');
+            const hash = crypto.randomBytes(4).toString('hex');
             this.hash = hash;
-            return this.hash
+            return true;
         }
         return null;
     }
