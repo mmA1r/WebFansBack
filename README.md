@@ -90,7 +90,7 @@ sendGeneralMessageHandler {
     ) => {
         response: {result: string, data: boolean} = {
             result: 'ok',
-            data: { chatHash: string }
+            data: { data: boolean }
         }
     }
 }
