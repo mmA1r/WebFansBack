@@ -14,8 +14,8 @@ class MessageManager {
     }
 
     sendGeneralMessage(message, senderId) {
-        const sender = UserManager.users[senderId]
-        if(message && senderId && sender) {
+        const sender = UserManager.users[senderId];
+        if((message && senderId && sender) || (message && senderId === 0 && sender)) {
             this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name);
             this.genId();
             const hash = crypto.randomBytes(32).toString('hex');

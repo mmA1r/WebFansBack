@@ -24,8 +24,9 @@ function Router({ userManager, messageManager }) {
     router.get('/api/getUser/:token', getUserHandler(answer, userManager));
     /// Messanger ///
     router.get('/api/getMessages/:chatHash', getMessagesHandler(answer, messageManager));
-    router.get('/api/sendGeneralMessage/:message/:senderId', sendGeneralMessageHandler(answer, messageManager));
+    router.post('/api/sendGeneralMessage', sendGeneralMessageHandler(answer, messageManager));
     router.get('/api/sendPrivateMessage/:message/:senderId/:messageTraget', sendPrivateMessageHandler(answer, messageManager));
+
     //router.all('/*', notFound);
     return router;
 }

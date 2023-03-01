@@ -1,6 +1,6 @@
 function sendGeneralMessageHandler(answer, messageManager) {
-    return (req, res, next) => {
-        const { message, senderId } = req.params;
+    return (req, res) => {
+        const { message, senderId } = req.body;
 
         const data = messageManager.sendGeneralMessage(message, senderId);
         if(data) {
