@@ -51,9 +51,9 @@ useRegistrationHandler {
 ____
 
 ```typescript
-getUserHandler {
+getUserByTokenHandler {
     (
-        method: string = 'getUser',
+        method: string = 'getUserByToken',
         token: string
     ) => {
         response: {result: string, data: boolean} = {
@@ -82,9 +82,9 @@ getMessagesHandler  {
 ____
 
 ```typescript
-sendGeneralMessageHandler {
+sendPublicMessageHandler {
     (
-        method: string = 'sendGeneralMessage',
+        method: string = 'sendPublicMessage',
         message: string,
         senderId: string
     ) => {
