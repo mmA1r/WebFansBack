@@ -2,14 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+const CONFIG = require('./config');
+const { PORT, MEDIATOR } = CONFIG;
 
-const userManager = require('./application/modules/UserManager/UserManager');
-const messageManager = require('./application/modules/messageManager/MessageManager');
+const Mediator = require('./application/modules/Mediator');
+const UserManager = require('./application/modules/UserManager/UserManager');
+const ChatManager = require('./application/modules/chatManager/ChatManager');
+
+const mediator = new Mediator({ ...MEDIATOR });
+const userManager = new UserManager({ mediator });
+const chatManager = new ChatManager({ mediator });
 
 const Router = require('./application/routers/Router');
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(new Router({ userManager, messageManager }));
+app.use(new Router({ mediator }));
 
-app.listen(3001, () => console.log('Server is up'));
+app.listen(PORT, () => console.log('Server is up'));

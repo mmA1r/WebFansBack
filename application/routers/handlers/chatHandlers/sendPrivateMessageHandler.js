@@ -1,8 +1,9 @@
-function sendPrivateMessageHandler(answer, chatManager) {
+function sendPrivateMessageHandler(answer, mediator) {
     return (req, res) => {
         const { message, senderId, messageTarget } = req.params;
+        const { SEND_PRIVATE_MESSAGE_HANDLER } = mediator.TRIGGERS;
         
-        const data = messageManager.sendPrivateMessage(message, senderId, messageTarget);
+        const data = mediator.get(SEND_PRIVATE_MESSAGE_HANDLER, { message, senderId, messageTarget });
         if(data) {
             return res.send(answer.good({ token: data }));
         }

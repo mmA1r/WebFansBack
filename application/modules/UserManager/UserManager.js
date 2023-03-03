@@ -1,26 +1,42 @@
-const User = require('./User');
+const BaseManager = require('../BaseManager');
+const User = require('./user/User');
 const crypto = require('crypto');
 
-class UserManager {
-    constructor() {
+class UserManager extends BaseManager {
+    constructor(options) {
+        super(options);
+        
         this.id = 0;
         this.users = {};
+
+        const {
+            USE_REGISTRATION_HANDLER,
+            USE_LOGOUT_HANDLER,
+            USE_LOGIN_HANDLER,
+            GET_USER_BY_TOKEN_HANDLER,
+            GET_USERS
+        } = this.TRIGGERS;
+
+        this.mediator.set(GET_USERS, this.getUsers);
+        this.mediator.set(USE_REGISTRATION_HANDLER, this.registration);
+        this.mediator.set(USE_LOGOUT_HANDLER, this.logout);
+        this.mediator.set(USE_LOGIN_HANDLER, this.login);
+        this.mediator.set(GET_USER_BY_TOKEN_HANDLER, this.getUserByToken);
     }
 
-    genId() {
-        return ++this.id;
-    }
+    /**  outer functions  **/
 
-    registration(name, login, password) {
+    registration = ({ name, login, password }) => {
         if(this.checkLogin(login) && name && password) {
             this.users[`${this.id}`] = new User(this.id, name, login, password);
+            this.mediator.call(this.EVENTS['NEW_USER_ADDED']);
             this.genId();
             return true;
         }
         return false;
     }
 
-    login(login, password) {
+    login = ({ login, password }) => {
         if(login && password) {
             const users = Object.values(this.users)
             if(users[0]){
@@ -35,7 +51,7 @@ class UserManager {
         return false;
     }
     
-    logout(token) {
+    logout = (token) => {
         if(token) {
             const users = Object.values(this.users);
             if(users[0]) {
@@ -49,7 +65,7 @@ class UserManager {
         return false;
     }
 
-    getUser(token) {
+    getUserByToken = (token) => {
         const users = Object.values(this.users);
         if(users[0]) {
             const user = (users.filter(user => user.token === token))[0];
@@ -58,18 +74,23 @@ class UserManager {
         return null;
     }
 
-    //checkUser(login, token) {
-    //    if(token) {
-    //    }
-    //}
+    /**  inner functions  **/
 
-    checkLogin(login) {
+    checkLogin = (login) => {
         const users = Object.values(this.users);
         if(users[0]) {
             return users.every(user => user.login !== login);
         }
         return true;
     }
+
+    genId() {
+        return ++this.id;
+    }
+
+    getUsers = () => {
+        return this.users;
+    }
 }
 
-module.exports = new UserManager;
+module.exports = UserManager;

@@ -1,8 +1,9 @@
-function useLoginHandler(answer, userManager) {
+function useLoginHandler(answer, mediator) {
     return (req, res) => {
         const { login, password } = req.params;
-        
-        const data = userManager.login(login, password);
+        const { USE_LOGIN_HANDLER } = mediator.TRIGGERS;
+
+        const data = mediator.get(USE_LOGIN_HANDLER, { login, password });
         if(data) {
             return res.send(answer.good({ data }));
         }
