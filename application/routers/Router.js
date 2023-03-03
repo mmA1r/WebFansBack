@@ -13,7 +13,6 @@ const sendPublicMessageHandler = require('./handlers/chatHandlers/sendPublicMess
 const sendPrivateMessageHandler = require('./handlers/chatHandlers/sendPrivateMessageHandler');
 
 function Router({ mediator }) {
-    //console.log(userManager, messageManager);
     const answer = new Answer;
 
     router.get('/api/check', (req, res) => res.send('checked'));
