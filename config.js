@@ -2,9 +2,7 @@ class CONFIG {
     PORT = 3001;
 
     MEDIATOR = {
-        EVENTS: {
-            NEW_USER_ADDED: 'NEW_USER_ADDED'
-        },
+        EVENTS: {},
         TRIGGERS: {
             /**  users  **/
             USE_REGISTRATION_HANDLER: 'USE_REGISTRATION_HANDLER',
@@ -16,7 +14,7 @@ class CONFIG {
             SEND_PRIVATE_MESSAGE_HANDLER: 'SEND_PRIVATE_MESSAGE_HANDLER',
             SEND_PUBLIC_MESSAGE_HANDLER: 'SEND_PUBLIC_MESSAGE_HANDLER',
             /**  inner functions between managers  **/
-            GET_USERS: 'GET_USERS',
+            GET_USER_BY_ID: 'GET_USER_BY_ID',
         }
     }
 }

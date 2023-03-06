@@ -9,29 +9,23 @@ class ChatManager extends BaseManager {
         this.id = 0;
         this.hash = crypto.randomBytes(32).toString('hex');
         this.messages = {};
-        this.users = {};
 
         const { 
             SEND_PUBLIC_MESSAGE_HANDLER,
             SEND_PRIVATE_MESSAGE_HANDLER,
-            GET_MESSAGES_HANDLER
+            GET_MESSAGES_HANDLER,
         } = this.TRIGGERS;
 
-        const {
-            NEW_USER_ADDED
-        } = this.EVENTS;
 
-        this.mediator.set(SEND_PUBLIC_MESSAGE_HANDLER, this.sendPublicMessage);
-        this.mediator.set(SEND_PRIVATE_MESSAGE_HANDLER, this.sendPrivateMessage);
-        this.mediator.set(GET_MESSAGES_HANDLER, this.getMessages);
-
-        this.mediator.subscribe(NEW_USER_ADDED, this.updateUsers);
+        this.mediator.set(SEND_PUBLIC_MESSAGE_HANDLER, ({message, senderId}) => this.sendPublicMessage({message, senderId}));
+        this.mediator.set(SEND_PRIVATE_MESSAGE_HANDLER, ({message, senderId, messageTarget}) => this.sendPrivateMessage({message, senderId, messageTarget}));
+        this.mediator.set(GET_MESSAGES_HANDLER, (hash) => this.getMessages(hash));
     }
 
     /**  outer functions  **/
 
-    sendPublicMessage = ({message, senderId}) => {
-        const sender = this?.users[senderId];
+    sendPublicMessage({message, senderId}) {
+        const sender = () => getUserById(senderId);
         if((message && senderId && sender) || (message && senderId === 0 && sender)) {
             this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name);
             this.genId();
@@ -42,8 +36,8 @@ class ChatManager extends BaseManager {
         return null;
     }
 
-    sendPrivateMessage = ({message, senderId, messageTarget}) => {
-        const sender = this?.users[senderId];
+    sendPrivateMessage({message, senderId, messageTarget}) {
+        const sender = () => getUserById(senderId);
         if(message && senderId && messageTarget && sender) {
             this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name, messageTarget);
             this.genId();
@@ -54,7 +48,7 @@ class ChatManager extends BaseManager {
         return null;
     }
 
-    getMessages = (hash) => {
+    getMessages(hash) {
         const dbHash = this.hash;
         if(hash !== dbHash) {
             const messages = Object.values(this.messages);
@@ -69,8 +63,8 @@ class ChatManager extends BaseManager {
         return ++this.id;
     }
 
-    updateUsers = () => {
-        return this.users = this.mediator.get(this.TRIGGERS['GET_USERS']);
+    getUserById(id) {
+        return this.mediator.get(this.TRIGGERS['GET_USER_BY_ID'], id);
     }
 }
 

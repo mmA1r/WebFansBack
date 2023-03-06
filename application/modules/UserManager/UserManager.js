@@ -14,20 +14,20 @@ class UserManager extends BaseManager {
             USE_LOGOUT_HANDLER,
             USE_LOGIN_HANDLER,
             GET_USER_BY_TOKEN_HANDLER,
-            GET_USERS
+            GET_USER_BY_ID
         } = this.TRIGGERS;
 
-        this.mediator.set(GET_USERS, this.getUsers);
-        this.mediator.set(USE_REGISTRATION_HANDLER, this.registration);
-        this.mediator.set(USE_LOGOUT_HANDLER, this.logout);
-        this.mediator.set(USE_LOGIN_HANDLER, this.login);
-        this.mediator.set(GET_USER_BY_TOKEN_HANDLER, this.getUserByToken);
+        this.mediator.set(GET_USER_BY_ID, (id) => this.getUserById(id));
+        this.mediator.set(USE_REGISTRATION_HANDLER, ({ name, login, password }) => this.registration({ name, login, password }));
+        this.mediator.set(USE_LOGOUT_HANDLER, (token) => this.logout(token));
+        this.mediator.set(USE_LOGIN_HANDLER, ({ login, password }) => this.login({ login, password }));
+        this.mediator.set(GET_USER_BY_TOKEN_HANDLER, (token) => this.getUserByToken(token));
     }
 
     /**  outer functions  **/
 
-    registration = ({ name, login, password }) => {
-        if(this.checkLogin(login) && name && password) {
+    registration({ name, login, password }) {
+        if(() => this.checkLogin(login) && name && password) {
             this.users[`${this.id}`] = new User(this.id, name, login, password);
             this.mediator.call(this.EVENTS['NEW_USER_ADDED']);
             this.genId();
@@ -36,7 +36,7 @@ class UserManager extends BaseManager {
         return false;
     }
 
-    login = ({ login, password }) => {
+    login({ login, password }) {
         if(login && password) {
             const users = Object.values(this.users)
             if(users[0]){
@@ -51,7 +51,7 @@ class UserManager extends BaseManager {
         return false;
     }
     
-    logout = (token) => {
+    logout(token) {
         if(token) {
             const users = Object.values(this.users);
             if(users[0]) {
@@ -65,7 +65,7 @@ class UserManager extends BaseManager {
         return false;
     }
 
-    getUserByToken = (token) => {
+    getUserByToken(token) {
         const users = Object.values(this.users);
         if(users[0]) {
             const user = (users.filter(user => user.token === token))[0];
@@ -76,7 +76,7 @@ class UserManager extends BaseManager {
 
     /**  inner functions  **/
 
-    checkLogin = (login) => {
+    checkLogin(login) {
         const users = Object.values(this.users);
         if(users[0]) {
             return users.every(user => user.login !== login);
@@ -88,8 +88,8 @@ class UserManager extends BaseManager {
         return ++this.id;
     }
 
-    getUsers = () => {
-        return this.users;
+    getUserById(id) {
+        return this.users[id];
     }
 }
 
