@@ -38,7 +38,7 @@ const Answer = require('./Answer');
 const useRegistrationHandler = require('./handlers/userHandlers/useRegistrationHandler');
 const useLoginHandler = require('./handlers/userHandlers/useLoginHandler');
 const useLogoutHandler = require('./handlers/userHandlers/useLogoutHandler');
-const getUserByTokenHandler = require('./handlers/userHandlers/getUserByTokenHandler');
+const getUserByGuidHandler = require('./handlers/userHandlers/getUserByGuidHandler');
 const uploadUserImageHandler = require('./handlers/userHandlers/uploadUserImageHandler');
 //messanger
 const getMessagesHandler = require('./handlers/chatHandlers/getMessagesHandler');
@@ -55,13 +55,13 @@ function Router({ mediator }) {
     router.post('/api/uploadAvatar', uploadAvatars.single('image'), uploadAvatar(answer, mediator));
     router.post('/api/uploadCover', uploadCovers.single('image'), uploadCover(answer, mediator));
     /// USER ///
-    router.get('/api/registration/:name/:login/:password', useRegistrationHandler(answer, mediator));
+    router.get('/api/registration/:name/:login/:password/:guid', useRegistrationHandler(answer, mediator));
     router.get('/api/login/:login/:password/:rndNum', useLoginHandler(answer, mediator));
-    router.get('/api/logout/:token', useLogoutHandler(answer, mediator));
-    router.get('/api/getUserByToken/:token', getUserByTokenHandler(answer, mediator));
+    router.get('/api/logout/:tokenHash/:randomNumber/:guid', useLogoutHandler(answer, mediator));
+    router.get('/api/getUserByGuid/:tokenHash/:randomNumber/:guid', getUserByGuidHandler(answer, mediator));
     router.post('/api/uploadUserImage', uploadUserImageHandler(answer, mediator));
     /// Messanger ///
-    router.get('/api/getMessages/:chatHash', getMessagesHandler(answer, mediator));
+    router.get('/api/getMessages/:tokenHash/:randomNumber/:guid/:chatHash', getMessagesHandler(answer, mediator));
     router.post('/api/sendPublicMessage', sendPublicMessageHandler(answer, mediator));
     router.get('/api/sendPrivateMessage/:message/:senderId/:messageTraget', sendPrivateMessageHandler(answer, mediator));
 

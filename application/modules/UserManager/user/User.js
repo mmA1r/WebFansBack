@@ -1,6 +1,7 @@
 class User {
-    constructor({id, name, login, password, token = null, userOptions = {}}) {
+    constructor({id, guid, name, login, password, token = null, userOptions = {}}) {
         this.id = id;
+        this.guid = guid
         this.name = name;
         this.login = login;
         this.password = password;

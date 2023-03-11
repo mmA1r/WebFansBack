@@ -17,17 +17,19 @@ class ChatManager extends BaseManager {
         } = this.TRIGGERS;
 
 
-        this.mediator.set(SEND_PUBLIC_MESSAGE_HANDLER, ({message, senderId}) => this.sendPublicMessage({message, senderId}));
-        this.mediator.set(SEND_PRIVATE_MESSAGE_HANDLER, ({message, senderId, messageTarget}) => this.sendPrivateMessage({message, senderId, messageTarget}));
-        this.mediator.set(GET_MESSAGES_HANDLER, (hash) => this.getMessages(hash));
+        this.mediator.set(SEND_PUBLIC_MESSAGE_HANDLER, ({ tokenHash, randomNumber, guid, message }) => this.sendPublicMessage({ tokenHash, randomNumber, guid, message }));
+        this.mediator.set(SEND_PRIVATE_MESSAGE_HANDLER, ({ message, senderId, messageTarget }) => this.sendPrivateMessage({message, senderId, messageTarget}));
+        this.mediator.set(GET_MESSAGES_HANDLER, ({ tokenHash, randomNumber, guid, chatHash }) => this.getMessages({ tokenHash, randomNumber, guid, chatHash }));
     }
 
     /**  outer functions  **/
 
-    sendPublicMessage({message, senderId}) {
-        const sender = () => getUserById(senderId);
-        if((message && senderId && sender) || (message && senderId === 0 && sender)) {
-            this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name);
+    sendPublicMessage({ tokenHash, randomNumber, guid, message }) {
+        const filteredData = this.getUserByGuid(guid, randomNumber, { message });
+        const sender = filteredData?.user;
+        const possibleTokenHash = filteredData?.possibleTokenHash;
+        if(message && sender && possibleTokenHash === tokenHash) {
+            this.messages[`${this.id}`] = new Message(this.id, message, sender.id, sender.name);
             this.genId();
             const hash = crypto.randomBytes(32).toString('hex');
             this.hash = hash;
@@ -36,10 +38,12 @@ class ChatManager extends BaseManager {
         return null;
     }
 
-    sendPrivateMessage({message, senderId, messageTarget}) {
-        const sender = () => getUserById(senderId);
-        if(message && senderId && messageTarget && sender) {
-            this.messages[`${this.id}`] = new Message(this.id, message, senderId, sender.name, messageTarget);
+    sendPrivateMessage({ tokenHash, randomNumber, guid, message, recipient }) {
+        const filteredData = this.getUserByGuid(guid, randomNumber, { message, recipient });
+        const sender = filteredData?.user;
+        const possibleTokenHash = filteredData?.possibleTokenHash;
+        if(message && recipient && sender && possibleTokenHash === tokenHash) {
+            this.messages[`${this.id}`] = new Message(this.id, message, sender.id, sender.name, recipient);
             this.genId();
             const hash = crypto.randomBytes(4).toString('hex');
             this.hash = hash;
@@ -48,23 +52,29 @@ class ChatManager extends BaseManager {
         return null;
     }
 
-    getMessages(hash) {
+    getMessages({ tokenHash, randomNumber, guid, chatHash }) {
         const dbHash = this.hash;
-        if(hash !== dbHash) {
-            const messages = Object.values(this.messages);
-            return { messages, dbHash };
+        if(chatHash !== dbHash) {
+            const filteredData = this.getUserByGuid(guid, randomNumber, { chatHash });
+            const possibleTokenHash = filteredData?.possibleTokenHash;
+            if(possibleTokenHash === tokenHash) {
+                const messages = Object.values(this.messages);
+                return { messages, dbHash };
+            }
         }
         return null;
     }
 
-    /**  inner functions  **/
+    /**  inner manager functions  **/
 
     genId() {
         return ++this.id;
     }
 
-    getUserById(id) {
-        return this.mediator.get(this.TRIGGERS['GET_USER_BY_ID'], id);
+    getUserByGuid(guid, randomNumber, params={}) {
+        params['guid'] = guid;
+        const data = this.mediator.get(this.TRIGGERS['GET_FILTERED_REQ_DATA'], { guid, randomNumber, params });
+        return (data ? data : null);
     }
 }
 

@@ -1,9 +1,9 @@
 function sendPublicMessageHandler(answer, mediator) {
     return (req, res) => {
-        const { message, senderId } = req.body;
+        const { tokenHash, randomNumber, guid, message } = req.body;
         const { SEND_PUBLIC_MESSAGE_HANDLER } = mediator.TRIGGERS;
 
-        const data = mediator.get(SEND_PUBLIC_MESSAGE_HANDLER, { message, senderId });
+        const data = mediator.get(SEND_PUBLIC_MESSAGE_HANDLER, { tokenHash, randomNumber, guid, message });
         if(data) {
             return res.send(answer.good({ data }));
         }

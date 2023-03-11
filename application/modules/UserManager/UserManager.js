@@ -1,7 +1,8 @@
 const BaseManager = require('../BaseManager');
 const User = require('./user/User');
 const fs = require('fs');
-const hash = require('object-hash');
+
+const hash = require('../../../hooks/hash');
 
 class UserManager extends BaseManager {
     constructor(options) {
@@ -14,25 +15,31 @@ class UserManager extends BaseManager {
             USE_REGISTRATION_HANDLER,
             USE_LOGOUT_HANDLER,
             USE_LOGIN_HANDLER,
-            GET_USER_BY_TOKEN_HANDLER,
-            GET_USER_BY_ID,
+            GET_USER_BY_GUID_HANDLER,
+            GET_FILTERED_REQ_DATA,
             UPLOAD_USER_IMAGE
         } = this.TRIGGERS;
 
-        this.mediator.set(GET_USER_BY_ID, (id) => this.getUserById(id));
-        this.mediator.set(USE_REGISTRATION_HANDLER, ({ name, login, password }) => this.registration({ name, login, password }));
-        this.mediator.set(USE_LOGOUT_HANDLER, (token) => this.logout(token));
+        this.mediator.set(GET_FILTERED_REQ_DATA, ({ guid, randomNumber, params={} }) => this.filterData({ guid, randomNumber, params }));
+        this.mediator.set(USE_REGISTRATION_HANDLER, ({ name, login, password, guid }) => this.registration({ name, login, password, guid }));
+        this.mediator.set(USE_LOGOUT_HANDLER, ({ tokenHash, randomNumber, guid }) => this.logout({ tokenHash, randomNumber, guid }));
         this.mediator.set(USE_LOGIN_HANDLER, ({ login, password, rndNum }) => this.login({ login, password, rndNum }));
-        this.mediator.set(GET_USER_BY_TOKEN_HANDLER, (token) => this.getUserByToken(token));
+        this.mediator.set(GET_USER_BY_GUID_HANDLER, ({ tokenHash, randomNumber, guid }) => this.getUserByGuid({ tokenHash, randomNumber, guid }));
         this.mediator.set(UPLOAD_USER_IMAGE, ({ token, image, type }) => this.uploadUserImage({ token, image, type }));
     }
 
     /**  outer functions  **/
 
-    registration({ name, login, password }) {
-        if(() => this.checkLogin(login) && name && password) {
-            const passwordHash = hash({ login, password });
-            this.users[`${this.id}`] = new User({ id: this.id, name, login, password: passwordHash });
+    registration({ name, login, password, guid }) {
+        if(() => this.checkLogin(login) && name && password && guid) {
+            const passwordHash = hash.useGenerateHash({ login, password }).paramsHash;
+            this.users[`${this.id}`] = new User({ 
+                id: this.id, 
+                guid, 
+                name, 
+                login, 
+                password: passwordHash 
+            });
             this.genId();
             return true;
         }
@@ -41,61 +48,42 @@ class UserManager extends BaseManager {
 
     login({ login, password, rndNum }) {
         if(login && password) {
-            const users = Object.values(this.users);
+            const users = this.getUsers();
             if(users[0]){
                 const user = (users.filter(user => user.login === login && user.password + rndNum === password))[0];
                 if(user) {
-                    const rndString = this.rndString(10);
-                    const token = hash({ hash: hash({ login, password: user.password }), rndString });
-                    user.token = token;
-                    return rndString;
+                    const generatedToken = hash.useGenerateToken(login, user.password);
+                    user.token = generatedToken.returnHash
+                    return generatedToken.rndString;
                 }
             }
         }
         return false;
     }
-
-
-
-
-
-
-    rndString(length) {
-        let result = '';
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
-        let counter = 0;
-        while (counter < length) {
-          result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          counter += 1;
-        }
-        return result;
-    }
-    
-
-
-
-
-
-    
-    logout(token) {
-        if(token) {
-            const users = Object.values(this.users);
-            if(users[0]) {
-                const user = (users.filter(user => user.token === token))[0];
-                if(user) {
-                    user.token = null;
-                    return true;
-                }
+  
+    logout({ tokenHash, randomNumber, guid }) {
+        if(tokenHash && guid) {
+            const params = { guid };
+            const filteredData = this.filterData({ guid, randomNumber, params });
+            const user = filteredData?.user;
+            const possibleTokenHash = filteredData?.possibleTokenHash;
+            if(user && possibleTokenHash === tokenHash) {
+                user.token = null;
+                return true;
             }
         }
         return false;
     }
 
-    getUserByToken(token) {
-        const users = Object.values(this.users);
-        if(users[0]) {
-            return (users.filter(user => user.token === token))[0];
+    getUserByGuid({ tokenHash, randomNumber, guid }) {
+        if(tokenHash && guid) {
+            const params = { guid };
+            const filteredData = this.filterData({ guid, randomNumber, params });
+            const user = filteredData?.user;
+            const possibleTokenHash = filteredData?.possibleTokenHash;
+            if(user && possibleTokenHash === tokenHash) {
+                return user;
+            }
         }
         return null;
     }
@@ -117,20 +105,47 @@ class UserManager extends BaseManager {
 
     /**  inner functions  **/
 
-    checkLogin(login) {
-        const users = Object.values(this.users);
-        if(users[0]) {
-            return users.every(user => user.login !== login);
+    filterData({ guid, randomNumber, params={} }) {
+        const user = this.filterUsers(guid);
+        if(user) {
+            const possibleTokenHash = hash.implictToken(user.token, params, randomNumber).tokenHash;
+            return {
+                user,
+                possibleTokenHash
+            }
         }
-        return true;
+        return null;
     }
+
+    /**  inner manager functions  **/
 
     genId() {
         return ++this.id;
     }
 
-    getUserById(id) {
-        return this.users[id];
+    filterUsers(guid) {
+        const users = this.getUsers();
+        if(users) {
+            const user = (users.filter(user => user.guid === guid))[0];
+            return user;
+        }
+        return null;
+    }
+
+    getUsers() {
+        const users = Object.values(this.users);
+        if(users[0]) {
+            return users;
+        }
+        return null;
+    }
+
+    checkLogin(login) {
+        const users = this.getUsers();
+        if(users) {
+            return users.every(user => user.login !== login);
+        }
+        return true;
     }
 }
 

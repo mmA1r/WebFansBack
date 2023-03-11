@@ -1,9 +1,9 @@
 function useLogoutHandler(answer, mediator) {
     return (req, res) => {
-        const { token } = req.params;
+        const { tokenHash, randomNumber, guid } = req.params;
         const { USE_LOGOUT_HANDLER } = mediator.TRIGGERS;
         
-        const data = mediator.get(USE_LOGOUT_HANDLER, token);
+        const data = mediator.get(USE_LOGOUT_HANDLER, { tokenHash, randomNumber, guid });
         if(data) {
             return res.send(answer.good({ data }));
         }
