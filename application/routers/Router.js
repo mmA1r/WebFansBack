@@ -2,18 +2,20 @@ const express = require("express");
 const router = express.Router();
 
 const Answer = require('./Answer');
-const uploadAvatar = require('./handlers/fileHandlers/storagePath/usersAvatarStorage');
-const uploadCover = require('./handlers/fileHandlers/storagePath/usersCoverStorage');
 //user
 const useRegistrationHandler = require('./handlers/userHandlers/useRegistrationHandler');
 const useLoginHandler = require('./handlers/userHandlers/useLoginHandler');
 const useLogoutHandler = require('./handlers/userHandlers/useLogoutHandler');
 const getUserByGuidHandler = require('./handlers/userHandlers/getUserByGuidHandler');
-const uploadFileHandler = require('./handlers/fileHandlers/uploadFileHandler');
 //messanger
 const getMessagesHandler = require('./handlers/chatHandlers/getMessagesHandler');
 const sendPublicMessageHandler = require('./handlers/chatHandlers/sendPublicMessageHandler');
 const sendPrivateMessageHandler = require('./handlers/chatHandlers/sendPrivateMessageHandler');
+//file
+const uploadAvatar = require('./handlers/fileHandlers/storagePath/usersAvatarStorage');
+const uploadCover = require('./handlers/fileHandlers/storagePath/usersCoverStorage');
+const uploadFileHandler = require('./handlers/fileHandlers/uploadFileHandler');
+const getFileHandler = require('./handlers/fileHandlers/getFileHandler');
 
 function Router({ mediator }) {
     const answer = new Answer;
@@ -31,6 +33,7 @@ function Router({ mediator }) {
     /// File ///
     router.post('/api/uploadAvatar', uploadAvatar.single('image'), uploadFileHandler(answer, mediator));
     router.post('/api/uploadCover', uploadCover.single('image'), uploadFileHandler(answer, mediator));
+    router.post('/api/getImage', getFileHandler(answer, mediator));
     //router.all('/*', notFound);
     return router;
 }

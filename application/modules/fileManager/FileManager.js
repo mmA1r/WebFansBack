@@ -6,13 +6,15 @@ class FileManager extends BaseManager {
         super(options);
 
         const {
-            RECORD_FILE_NAME_TO_USER,
+            RECORD_USER_FILE,
+            GET_FILE
         } = this.TRIGGERS;
 
-        this.mediator.set(RECORD_FILE_NAME_TO_USER, ({ tokenHash, guid, randomNumber, file }) => this.recordFileName({ tokenHash, guid, randomNumber, file }));
+        this.mediator.set(RECORD_USER_FILE, ({ tokenHash, guid, randomNumber, file }) => this.recordFile({ tokenHash, guid, randomNumber, file }));
+        this.mediator.set(GET_FILE, ({ tokenHash, guid, randomNumber, type }) => this.getFile({ tokenHash, guid, randomNumber, type }));
     }
 
-    recordFileName({ tokenHash, guid, randomNumber, file }) {
+    recordFile({ tokenHash, guid, randomNumber, file }) {
         const params = { guid }
         const fileName = file.filename;
         const filteredData = this.getUserByGuid(guid, randomNumber, params);
@@ -26,6 +28,20 @@ class FileManager extends BaseManager {
         }
         const path = file.path;
         this.deleteFile(path);
+        return null;
+    }
+
+    getFile({ tokenHash, guid, randomNumber, type }) {
+        const params = { guid, type }
+        const filteredData = this.getUserByGuid(guid, randomNumber, params);
+        const user = filteredData?.user
+        if(tokenHash === filteredData?.possibleTokenHash) {
+            const fileName = (
+                type === 'avatar' ? user.userOptions?.avatar :
+                type === 'cover' ? user.userOptions?.cover : null
+            );
+            return fileName;
+        }
         return null;
     }
 
