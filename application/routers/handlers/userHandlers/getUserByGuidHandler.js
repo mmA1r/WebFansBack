@@ -4,8 +4,8 @@ function getUserByGuidHandler(answer, mediator) {
         const { GET_USER_BY_GUID_HANDLER } = mediator.TRIGGERS;
         
         const data = mediator.get(GET_USER_BY_GUID_HANDLER, { tokenHash, randomNumber, guid });
-        const allowedData = { id: data.id, name: data.name, options: data.userOptions }
         if(data) {
+            const allowedData = { id: data?.id, name: data?.name, options: data?.userOptions }
             return res.send(answer.good({ data: allowedData }));
         }
         return res.send(answer.bad());

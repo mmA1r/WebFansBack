@@ -17,7 +17,6 @@ class UserManager extends BaseManager {
             USE_LOGIN_HANDLER,
             GET_USER_BY_GUID_HANDLER,
             GET_FILTERED_REQ_DATA,
-            UPLOAD_USER_IMAGE
         } = this.TRIGGERS;
 
         this.mediator.set(GET_FILTERED_REQ_DATA, ({ guid, randomNumber, params={} }) => this.filterData({ guid, randomNumber, params }));
@@ -25,7 +24,6 @@ class UserManager extends BaseManager {
         this.mediator.set(USE_LOGOUT_HANDLER, ({ tokenHash, randomNumber, guid }) => this.logout({ tokenHash, randomNumber, guid }));
         this.mediator.set(USE_LOGIN_HANDLER, ({ login, password, rndNum }) => this.login({ login, password, rndNum }));
         this.mediator.set(GET_USER_BY_GUID_HANDLER, ({ tokenHash, randomNumber, guid }) => this.getUserByGuid({ tokenHash, randomNumber, guid }));
-        this.mediator.set(UPLOAD_USER_IMAGE, ({ token, image, type }) => this.uploadUserImage({ token, image, type }));
     }
 
     /**  outer functions  **/
@@ -86,21 +84,6 @@ class UserManager extends BaseManager {
             }
         }
         return null;
-    }
-
-    uploadUserImage({ token, image, type }) {
-        const user = this.getUserByToken(token);
-        if(user) {
-            switch (type) {
-                case 'avatar':
-                    user.userOptions['userAvatar'] = image;
-                    return;
-                case 'cover':
-                    user.userOptions['userCover'] = image;
-                    return;
-                default: return;
-            }
-        }
     }
 
     /**  inner functions  **/
